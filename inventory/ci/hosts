@@ -1,0 +1,11 @@
+[jenkins]
+10.128.0.17 ansible_user=ennoiaconcept ansible_ssh_private_key_file=~/.ssh/gcp-key
+
+[nginx]
+10.128.0.18 ansible_user=ennoiaconcept ansible_ssh_private_key_file=~/.ssh/gcp-key
+
+[sonarqube]
+10.128.0.22 ansible_user=ennoiaconcept ansible_ssh_private_key_file=~/.ssh/gcp-key
+
+[artifactory]
+10.128.0.23 ansible_user=ennoiaconcept ansible_ssh_private_key_file=~/.ssh/gcp-key
