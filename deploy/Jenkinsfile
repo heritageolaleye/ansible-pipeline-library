@@ -1,12 +1,35 @@
 pipeline {
-  agent any
+    agent any
 
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building the application'
+            }
+        }
 
-  stages {
-    stage('Build') {
-      steps {
-        sh 'echo Building Stage'
-      }
+        stage('Test') {
+            steps {
+                echo 'Running tests'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                echo 'Packaging the application'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying the application'
+            }
+        }
+
+        stage('Clean up') {
+            steps {
+                echo 'Cleaning up resources'
+            }
+        }
     }
-  }
 }
