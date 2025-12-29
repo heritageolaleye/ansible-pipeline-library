@@ -33,7 +33,7 @@ pipeline {
                 dir('laravel-app') {
                     sh '''
                         php -v
-                        composer install
+                        #composer install
                         cp .env.example .env
                         php artisan key:generate
                         php artisan migrate
@@ -72,4 +72,3 @@ pipeline {
         }
     }
 }
-
