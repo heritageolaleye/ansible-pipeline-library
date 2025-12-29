@@ -1,34 +1,62 @@
+// deploy/Jenkinsfile
 pipeline {
     agent any
+    
+    environment {
+        ANSIBLE_CONFIG = "${WORKSPACE}/deploy/ansible.cfg"
+    }
+    
+    parameters {
+        choice(
+            name: 'environment',
+            choices: ['dev', 'staging', 'prod'],
+            description: 'Select deployment environment'
+        )
+        
+        string(
+            name: 'branch',
+            defaultValue: 'main',
+            description: 'Branch to build'
+        )
+    }
+}
 
     stages {
-        stage('Build') {
-            steps {
-                echo 'Building the application'
-            }
+    stage('Initial Cleanup') {
+        steps {
+            cleanWs()
+            checkout scm
         }
-
-        stage('Test') {
-            steps {
-                echo 'Running tests'
-            }
+    }
+    
+    stage('Prepare Dependencies') {
+        steps {
+            sh '''
+                php -v
+                composer install
+                cp .env.example .env
+                php artisan key:generate
+                php artisan migrate
+            '''
         }
-
-        stage('Package') {
-            steps {
-                echo 'Packaging the application'
-            }
+    }
+    
+    stage('Execute Tests') {
+        steps {
+            sh '''
+                sed -i "s/^APP_KEY=.*/APP_KEY=$(php artisan key:generate --show)/" .env
+                mkdir -p storage/framework/sessions
+                mkdir -p storage/framework/cache
+                mkdir -p storage/framework/views
+                echo "APP_KEY Updated"
+                echo "Running Tests"
+                ./vendor/bin/phpunit --log-junit tests/junit.xml
+            '''
         }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying the application'
-            }
-        }
-
-        stage('Clean up') {
-            steps {
-                echo 'Cleaning up resources'
+        
+        post {
+            always {
+                junit 'tests/junit.xml'
             }
         }
     }
