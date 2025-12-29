@@ -28,7 +28,7 @@ pipeline {
             }
         }
 
-        stage('Prepare Dependencies') {
+        stage('Prepare Laravel Dependencies') {
             steps {
                 dir('laravel-app') {
                     sh '''
@@ -42,14 +42,12 @@ pipeline {
             }
         }
 
-        stage('Execute Tests') {
+        stage('Execute Laravel Tests') {
             steps {
                 dir('laravel-app') {
                     sh '''
                         sed -i "s/^APP_KEY=.*/APP_KEY=$(php artisan key:generate --show)/" .env
-                        mkdir -p storage/framework/sessions
-                        mkdir -p storage/framework/cache
-                        mkdir -p storage/framework/views
+                        mkdir -p storage/framework/{sessions,cache,views}
                         echo "APP_KEY Updated"
                         echo "Running Tests"
                         ./vendor/bin/phpunit --log-junit tests/junit.xml
@@ -62,6 +60,14 @@ pipeline {
                         junit 'tests/junit.xml'
                     }
                 }
+            }
+        }
+
+        stage('Run Ansible Playbook') {
+            steps {
+                sh """
+                    ansible-playbook -i inventory/${params.environment}/hosts deploy/playbooks/site.yml
+                """
             }
         }
     }
